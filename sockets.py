@@ -80,8 +80,7 @@ myWorld = World()
 
 def set_listener( entity, data ):
     ''' do something with the update ! '''
-    for client in clients:
-        client.put(json.dumps({entity:data}))
+    send_all(json.dumps({entity:data}))
     
 
 myWorld.add_set_listener( set_listener )
@@ -97,12 +96,14 @@ def read_ws(ws,client):
     try:
         while True:
             message = ws.receive()
-            print("WS RECV: %s" % msg)
+            print("WS RECV: %s" % message)
             if (message is not None):
                 pct = json.loads(message)
-                #for en in pct:
-                    #myWorld.ser(en,pct[en])
+                for ent in pct:
+                    myWorld.set(ent,pct[ent])
                 send_all_json(pct)
+                #try removing
+                
             else:
                 break
     except:
@@ -117,10 +118,9 @@ def subscribe_socket(ws):
     client = Client()
     clients.append(client)
     g = gevent.spawn(read_ws,ws,client)
-    print("subscribing")
+    #print("subscribing")
     try:
         while True:
-            print("i think its this")
             message = client.get()
             ws.send(message)
     except Exception as e:
@@ -175,5 +175,4 @@ if __name__ == "__main__":
         and run
         gunicorn -k flask_sockets.worker sockets:app
     '''
-    
     app.run()
