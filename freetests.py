@@ -97,14 +97,16 @@ if __name__ == '__main__':
         os.system("bash run.sh &");
         print("Sleeping 3 seconds")
         gevent.sleep(3)
-        ws = WorldClient('ws://127.0.0.1:5000/subscribe', protocols=['http-only', 'chat'])
-        ws2 = WorldClient('ws://127.0.0.1:5000/subscribe', protocols=['http-only', 'chat'])
+        ws = WorldClient('ws://127.0.0.1:8000/subscribe', protocols=['http-only', 'chat'])
+        ws2 = WorldClient('ws://127.0.0.1:8000/subscribe', protocols=['http-only', 'chat'])
         ws.daemon = False
         ws2.daemon = False
         ws.name = "Reader/Writer"
         ws2.name = "Reader"
-        ws.connect()     
-        ws2.connect()     
+        ws.connect()   
+        print("stuck here?")  
+        ws2.connect()   
+        print("or stuck here?")   
         ''' what we're doing here is that we're sending new entities and getting them
             back on the websocket '''
         greenlets = [
@@ -112,8 +114,11 @@ if __name__ == '__main__':
             gevent.spawn(ws.outgoing),
         ]
         gws2 = gevent.spawn(ws2.incoming)
+        print("or stuck here here?")
         gevent.joinall(greenlets)
+        print("or stuck here here 2?")
         ws2.close()
+        print("or stuck here here 3?")
         gws2.join(timeout=1)
         # here's our final test
         print("Counts: %s %s" % (ws.count , ws2.count))

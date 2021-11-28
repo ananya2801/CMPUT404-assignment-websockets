@@ -26,9 +26,14 @@ app = Flask(__name__)
 sockets = Sockets(app)
 app.debug = True
 
+clients = list()
+
+def send_all(msg):
+    for client in clients:
+        client.put(msg)
 
 def send_all_json(obj):
-    send_all( json.dumps(obj) )
+    send_all(json.dumps(obj) )
 
 class Client:
     def __init__(self):
@@ -72,11 +77,12 @@ class World:
         return self.space
 
 myWorld = World()        
-clients = list()
+
 def set_listener( entity, data ):
     ''' do something with the update ! '''
     for client in clients:
-        client.put(json.dump({entity:data}))
+        client.put(json.dumps({entity:data}))
+    
 
 myWorld.add_set_listener( set_listener )
         
@@ -90,11 +96,12 @@ def read_ws(ws,client):
     # XXX: TODO IMPLEMENT ME
     try:
         while True:
-            message = ws.recceive()
-            if (message != None):
+            message = ws.receive()
+            print("WS RECV: %s" % msg)
+            if (message is not None):
                 pct = json.loads(message)
-                for en in pct:
-                    myWorld.ser(en,pct[en])
+                #for en in pct:
+                    #myWorld.ser(en,pct[en])
                 send_all_json(pct)
             else:
                 break
@@ -110,16 +117,18 @@ def subscribe_socket(ws):
     client = Client()
     clients.append(client)
     g = gevent.spawn(read_ws,ws,client)
+    print("subscribing")
     try:
         while True:
+            print("i think its this")
             message = client.get()
             ws.send(message)
     except Exception as e:
-        print("Error in subscribe socket "+e)
+        print("Error in subscribe socket ",e)
     finally:
         clients.remove(client)
         gevent.kill(g)
-    
+    return None
 
 
 # I give this to you, this is how you get the raw body/data portion of a post in flask
@@ -166,4 +175,5 @@ if __name__ == "__main__":
         and run
         gunicorn -k flask_sockets.worker sockets:app
     '''
+    
     app.run()
