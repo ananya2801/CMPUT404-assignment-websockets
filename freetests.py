@@ -40,9 +40,9 @@ import json
 
 world = dict()
 # set this to something sane 
-calls = 3000
+#calls = 3000
 # ugh there's too much output? Well drop calls down
-# calls = 100
+calls = 100
 
 def utf8(utf8bytes):
     return utf8bytes.decode("utf-8")
@@ -97,8 +97,8 @@ if __name__ == '__main__':
         os.system("bash run.sh &");
         print("Sleeping 3 seconds")
         gevent.sleep(3)
-        ws = WorldClient('ws://127.0.0.1:8000/subscribe', protocols=['http-only', 'chat'])
-        ws2 = WorldClient('ws://127.0.0.1:8000/subscribe', protocols=['http-only', 'chat'])
+        ws = WorldClient('ws://127.0.0.1:5000/subscribe', protocols=['http-only', 'chat'])
+        ws2 = WorldClient('ws://127.0.0.1:5000/subscribe', protocols=['http-only', 'chat'])
         ws.daemon = False
         ws2.daemon = False
         ws.name = "Reader/Writer"
