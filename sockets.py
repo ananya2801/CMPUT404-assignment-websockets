@@ -33,7 +33,7 @@ def send_all(msg):
         client.put(msg)
 
 def send_all_json(obj):
-    send_all(json.dumps(obj) )
+    send_all(json.dumps(obj))
 
 class Client:
     def __init__(self):
@@ -92,7 +92,7 @@ def hello():
 
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
-    # XXX: TODO IMPLEMENT ME
+    
     try:
         while True:
             message = ws.receive()
@@ -107,6 +107,7 @@ def read_ws(ws,client):
             else:
                 break
     except:
+        pass #remove
         '''Done'''
 
 
@@ -114,7 +115,6 @@ def read_ws(ws,client):
 def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    # XXX: TODO IMPLEMENT ME
     client = Client()
     clients.append(client)
     g = gevent.spawn(read_ws,ws,client)
@@ -124,11 +124,11 @@ def subscribe_socket(ws):
             message = client.get()
             ws.send(message)
     except Exception as e:
-        print("Error in subscribe socket ",e)
+        print("WS Error %s ",e)
     finally:
         clients.remove(client)
         gevent.kill(g)
-    return None
+    
 
 
 # I give this to you, this is how you get the raw body/data portion of a post in flask
@@ -149,17 +149,20 @@ def update(entity):
     data = flask_post_json()
     myWorld.set(entity,data)
     return flask.jsonify(myWorld.get(entity))
+    
 
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
     return flask.jsonify(myWorld.world())
+  
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
     return flask.jsonify(myWorld.get(entity))
+    
 
 
 @app.route("/clear", methods=['POST','GET'])

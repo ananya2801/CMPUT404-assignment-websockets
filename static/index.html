@@ -48,7 +48,7 @@ world = {};
 function drawCircle(context,entity) {
     with(context) {
         beginPath();                
-        lineWidth = 4;
+        lineWidth = 3;
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
@@ -126,7 +126,7 @@ function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
-    //different way to write the new entity
+    
     var newEnt = {};
     newEn[entity] = data;
     socket.send(JSON.stringify(newEntity));
@@ -259,23 +259,14 @@ function wsSetup() {
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
-        /**
-        console.log(fetch(url));
-        fetch(url)
-        .then((response)=> {response.json()
-        .then((data) => {world = data; 
-        drawNextFrame();
-        });
-        });*/
-        var url = "/world";
         fetch(url)
         .then(response => response.json())
         .then(function(message){
-            for(entity in message){
+            for(var entity in message){
                 world[entity]=message[entity];
                 drawNextFrame();
             };
-        });
+        }); 
         
     };
     socket.onerror = function(msg) {
@@ -291,7 +282,7 @@ function wsSetup() {
                 world[i] = message[i];
                 drawNextFrame() //why no ; 
             }  
-            drawNextFrame() 
+           
         } catch (e) {
             alert("socket on message: " + e);
         }
